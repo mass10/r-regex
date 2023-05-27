@@ -17,11 +17,11 @@ impl MatchesHelper for getopts::Matches {
 }
 
 /// Retrieve the result of the regular expression.
-fn get_regex_result(string_value: String, expression_string: String) {
+fn get_regex_result(string_value: &str, expression_string: &str) -> Result<String, String> {
 	let expression = regex::Regex::new(&expression_string);
 	if expression.is_err() {
 		eprint!("ERROR: regex compile error. {}", expression.err().unwrap());
-		return;
+		return Err("".into());
 	}
 	let expression = expression.unwrap();
 
@@ -29,19 +29,21 @@ fn get_regex_result(string_value: String, expression_string: String) {
 	let capture_result = expression.captures_at(&string_value, 0);
 	if capture_result.is_none() {
 		eprint!("not match.");
-		return;
+		return Err("".into());
 	}
 
 	// result
 	let capture_result = capture_result.unwrap();
 	if capture_result.len() <= 1 {
 		eprint!("not match.");
-		return;
+		return Err("".into());
 	}
+
+	// println!("[debug] captured result: {:?}", capture_result);
 
 	let captured = capture_result.get(1).unwrap();
 	let result = captured.as_str();
-	print!("{}", result);
+	return Ok(result.into());
 }
 
 /// Entrypoint of a Rust application.
@@ -78,5 +80,28 @@ fn main() {
 		"".to_string()
 	};
 
-	get_regex_result(string_value, expression_string);
+	let result = get_regex_result(&string_value, &expression_string);
+	if result.is_err() {
+		return;
+	}
+	print!("{}", result.unwrap());
+}
+
+// test
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	fn exec_test(left: &str, right: &str, expected_result: &str) {
+		let result = get_regex_result(left, right);
+		let result = if result.is_err() { "".to_string() } else { result.unwrap() };	
+		assert_eq!(result, expected_result);
+	}
+
+	#[test]
+	fn test_get_regex_result() {
+		exec_test("abc", "a(.*)", "bc");
+		exec_test("000-1234", "^[0-9]+-([0-9]+)$", "1234");
+		exec_test("jimi.hendrix@gmail.com", "@(.+)$", "gmail.com");
+	}
 }
