@@ -9,6 +9,12 @@ Install
 cargo install --git https://github.com/mass10/r-regex --branch main
 ```
 
+Or download single binary file.
+
+```sh
+wget https://github.com/mass10/r-regex/releases/latest/download/r-regex
+```
+
 # Examples
 
 ```sh
