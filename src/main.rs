@@ -1,19 +1,20 @@
 //!
-//! regex
+//! r-regex
 //!  
 
+/// Helpers for container.
 trait MatchesHelper {
-    fn opt_string(&self, key: &str) -> String;
+	fn opt_string(&self, key: &str) -> String;
 }
 
 impl MatchesHelper for getopts::Matches {
-    fn opt_string(&self, key: &str) -> String {
-        if !self.opt_present(key) {
-            return "".to_string()
-        }
-        let value = self.opt_str(key).unwrap();
-        return value;
-    }
+	fn opt_string(&self, key: &str) -> String {
+		if !self.opt_present(key) {
+			return "".to_string();
+		}
+		let value = self.opt_str(key).unwrap();
+		return value;
+	}
 }
 
 /// Retrieve the result of the regular expression.
@@ -87,14 +88,14 @@ fn main() {
 	print!("{}", result.unwrap());
 }
 
-// test
+/// test
 #[cfg(test)]
 mod tests {
 	use super::*;
 
 	fn exec_test(left: &str, right: &str, expected_result: &str) {
 		let result = get_regex_result(left, right);
-		let result = if result.is_err() { "".to_string() } else { result.unwrap() };	
+		let result = if result.is_err() { "".to_string() } else { result.unwrap() };
 		assert_eq!(result, expected_result);
 	}
 
