@@ -23,6 +23,12 @@ wget https://github.com/mass10/r-regex/releases/latest/download/r-regex
 r-regex --string "123-4567" --regex "([0-9]+)$"
 ```
 
+### print 4567
+
+```sh
+echo "123-4567" | r-regex --regex "([0-9]+)"
+```
+
 ### print 1.0.0
 
 ```sh
