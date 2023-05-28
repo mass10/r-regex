@@ -2,6 +2,8 @@
 //! r-regex
 //!  
 
+use std::io::Read;
+
 /// Helpers for container.
 trait MatchesHelper {
 	fn opt_string(&self, key: &str) -> String;
@@ -21,7 +23,7 @@ impl MatchesHelper for getopts::Matches {
 fn get_regex_result(string_value: &str, expression_string: &str) -> Result<String, String> {
 	let expression = regex::Regex::new(&expression_string);
 	if expression.is_err() {
-		eprint!("ERROR: regex compile error. {}", expression.err().unwrap());
+		eprintln!("ERROR: regex compile error. {}", expression.err().unwrap());
 		return Err("".into());
 	}
 	let expression = expression.unwrap();
@@ -29,14 +31,14 @@ fn get_regex_result(string_value: &str, expression_string: &str) -> Result<Strin
 	// try to capture by "(...)".
 	let capture_result = expression.captures_at(&string_value, 0);
 	if capture_result.is_none() {
-		eprint!("not match.");
+		eprintln!("not match.");
 		return Err("".into());
 	}
 
 	// result
 	let capture_result = capture_result.unwrap();
 	if capture_result.len() <= 1 {
-		eprint!("not match.");
+		eprintln!("not match.");
 		return Err("".into());
 	}
 
@@ -45,6 +47,19 @@ fn get_regex_result(string_value: &str, expression_string: &str) -> Result<Strin
 	let captured = capture_result.get(1).unwrap();
 	let result = captured.as_str();
 	return Ok(result.into());
+}
+
+/// Read whole lines from stdin.
+fn read_whole_lines_from_stdin() -> String {
+	let mut buffer = String::new();
+	let stdin = std::io::stdin();
+	let mut handle = stdin.lock();
+	let result = handle.read_to_string(&mut buffer);
+	if result.is_err() {
+		eprintln!("ERROR: {}", result.err().unwrap());
+		return "".to_string();
+	}
+	return buffer;
 }
 
 /// Entrypoint of a Rust application.
@@ -57,13 +72,13 @@ fn main() {
 	// Analyzing command line arguments.
 	let result = options.parse(std::env::args().skip(1));
 	if result.is_err() {
-		eprint!("{}", options.usage(""));
+		eprintln!("{}", options.usage(""));
 		return;
 	}
 	let input = result.unwrap();
 
 	if input.opt_present("help") {
-		eprint!("{}", options.usage(""));
+		eprintln!("{}", options.usage(""));
 		return;
 	}
 
@@ -71,7 +86,7 @@ fn main() {
 		let string: String = input.opt_str("string").unwrap();
 		string
 	} else {
-		"".to_string()
+		read_whole_lines_from_stdin()
 	};
 
 	let expression_string = if input.opt_present("regex") {
@@ -85,7 +100,8 @@ fn main() {
 	if result.is_err() {
 		return;
 	}
-	print!("{}", result.unwrap());
+
+	println!("{}", result.unwrap());
 }
 
 /// test
