@@ -1,4 +1,4 @@
-name: Rust
+name: Validate as Rust codes
 
 on:
     push:
